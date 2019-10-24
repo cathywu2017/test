@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<head>
+    <title>面試前測驗</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <link href="images/favicon.ico" rel="shortcut icon">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/js/vue.js"></script>
+</head>
+<style>
+    
+</style>
+<html>
+<body>
+<div id="app">
+    <div class="d-flex content">
+        <div>
+            <img src="https://i.imgur.com/chU6Igj.jpg">            
+        </div>
+        <div class="detail">
+            <p :style="{borderColor: lineColor}">倒數時間：{{time}}</p>
+            <h2>商品名稱：iPad Pro</h2>
+            <p>{{text.total}}數量：{{total}}</p>
+            <button :class="{'text-reservation': text.btn == '預購','text-status': time == 0 || total == 0}" 
+                    :disabled="time == 0 || total == 0" 
+                    @click="dialog = true; showDialog(text.btn)">
+                    {{text.btn}}
+            </button>
+        </div>
+    </div>
+    <div class="dialog-bg" v-if="dialog == true">
+    <div class="dialog">
+        <p>我要{{text.dialog}}</p>
+        <div class="d-flex plus-block">
+            <button class="addOrMinus" @click="counter -= 1 && counter > 0"> - </button>
+            <input type="text" class="counterInput" v-model="counter" @keyup.enter="goBuy">
+            <button class="addOrMinus" @click="counter += 1"> + </button>
+        </div>
+        <div class="d-flex result-btn">
+            <button @click="dialog = false">取消</button>
+            <button class="confirm" @click="goBuy">確定</button>
+        </div>        
+    </div>
+    </div>
+</div>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            time: 70, //倒數時間
+            total: 10, //預設數量
+            counter: 5, //購買數量
+            dialog: false, //彈框
+            lineColor: 'green', //border 顏色
+            text: {
+                btn: '購買',
+                total:'剩餘',
+                dialog: '',                
+            }
+        },
+        mounted() {
+            this.countdown();
+        },
+        methods: {
+            countdown(){
+                let timeOut = window.setInterval(() => {
+                    this.time --
+                    if(this.time <= 59){
+                        this.lineColor = 'orange'
+                    }
+                    if(this.time > 0 && this.total == 0) {
+                        if(this.text.btn !== '預購') {
+                            this.total = 99
+                        }
+                        this.text.btn = '預購'
+                        this.text.total = '預購' 
+                    }
+                    if(this.time == 0) {
+                        this.lineColor = 'gray'
+                        this.text.btn = '停售'
+                        this.dialog = false
+                        window.clearInterval(timeOut)
+                    }
+                },1000)                
+            },
+            showDialog(value){
+                console.log(value)
+                if(value == '購買') {
+                    this.text.dialog = '購買'
+                }else if(value == '預購') {
+                    this.text.dialog = '預購'               
+                }
+            },
+            goBuy(){
+                if(this.counter > 0 && this.counter <= this.total) {
+                    this.total = this.total - this.counter
+                    this.dialog = false
+                    this.counter = 1
+                }else if(this.counter > this.total) {
+                    alert('商品庫存不足')
+                }else if(this.counter == 0 ) {
+                    alert('請至少購買1項商品')
+                }
+            },
+        },
+    })
+</script>
+</body>
+</html>
